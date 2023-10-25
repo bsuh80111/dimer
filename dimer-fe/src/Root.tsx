@@ -1,7 +1,6 @@
-import './Root.scss';
-import { Navbar } from './components/Navbar/Navbar';
-import { RouterProvider } from 'react-router-dom';
-import { router } from './router';
+import 'src/Root.scss';
+import { Navbar } from 'src/components/Navbar/Navbar';
+import { Outlet } from 'react-router-dom';
 
 
 function Root() {
@@ -10,7 +9,7 @@ function Root() {
     <>
       <Navbar />
       <main>
-        <RouterProvider router={router} />
+        <Outlet />
       </main>
     </>
   );

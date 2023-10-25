@@ -1,14 +1,26 @@
-import './index.scss';
+import 'src/index.scss';
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import ReactDOM from 'react-dom/client';
-import { Root } from './Root.tsx';
+import { RouterProvider } from 'react-router-dom';
 import { StrictMode } from 'react';
+import { router } from 'src/router.tsx';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      suspense: true
+    }
+  }
+});
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <Root />
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
   </StrictMode>,
 );

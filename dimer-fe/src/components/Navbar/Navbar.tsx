@@ -1,6 +1,7 @@
-import './Navbar.scss';
+import 'src/components/Navbar/Navbar.scss';
 import { AppBar, Box, Button, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemText, Toolbar, Typography } from "@mui/material";
 import MenuIcon from '@mui/icons-material/Menu';
+import { NavLink } from 'react-router-dom';
 import { useState } from 'react';
 
 interface NavItem {
@@ -54,7 +55,12 @@ const Navbar = () => {
           </Box>
           <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
             {navItems.map((navItem) => (
-              <Button key={`navbar-item-${navItem.label}`} sx={{ color: '#fff' }}>
+              <Button
+                component={NavLink}
+                key={`navbar-item-${navItem.label}`} 
+                sx={{ color: '#fff' }}
+                to={navItem.route}
+              >
                 {navItem.label}
               </Button>
             ))}
