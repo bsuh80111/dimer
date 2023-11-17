@@ -94,3 +94,21 @@ resource "aws_dynamodb_table" "test_terraform_table" {
     type = "S"
   }
 }
+
+
+### Lambdas ###
+
+data "archive_file" "create-user-zip" {
+ source_file = "dist/create-user/index.js"
+ output_path = "dist/create-user/create-note.zip"
+ type = "zip"
+}
+
+resource "aws_lambda_function" "create_user" {
+  function_name = "dimer-create-user"
+  role = aws_iam_role.dimer_lambda.arn
+  runtime = "nodejs20.x"
+  handler = "lambdas/create-user/index.handler"
+  filename = "dist/create-user/create-note.zip"
+  source_code_hash = filebase64sha256("dist/create-user/create-note.zip")
+}

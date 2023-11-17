@@ -1,0 +1,23 @@
+{
+  "name": "dimer-be",
+  "version": "1.0.0",
+  "description": "Serverless backend for Dimer",
+  "scripts": {
+    "build": "rm -rf dist && tsc",
+    "preview": "terraform plan",
+    "deploy": "terraform apply",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Brian Suh",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.126",
+    "@types/node": "^20.9.1",
+    "tsc": "^2.0.4",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.451.0"
+  },
+  "type": "module"
+}
