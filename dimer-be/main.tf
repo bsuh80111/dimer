@@ -35,7 +35,7 @@ resource "aws_iam_policy" "dynamodb_lambda" {
           "dynamodb:Query",
           "dynamodb:UpdateItem"
         ],
-        Resource : "${aws_dynamodb_table.test_terraform_table.arn}"
+        Resource : "${aws_dynamodb_table.dimer_users.arn}"
       }
     ]
   })
@@ -76,21 +76,15 @@ resource "aws_iam_role_policy_attachment" "dimer_lambda_dynamodb_lambda_policy" 
 
 
 ### DynamoDB ###
-resource "aws_dynamodb_table" "test_terraform_table" {
-  name           = "TerraformTest"
+resource "aws_dynamodb_table" "dimer_users" {
+  name           = "DimerUsers"
   billing_mode   = "PROVISIONED"
   read_capacity  = 20
   write_capacity = 20
-  hash_key       = "Id"
-  range_key      = "Name"
+  hash_key       = "id"
 
   attribute {
-    name = "Id"
-    type = "N"
-  }
-
-  attribute {
-    name = "Name"
+    name = "id"
     type = "S"
   }
 }
@@ -98,17 +92,17 @@ resource "aws_dynamodb_table" "test_terraform_table" {
 
 ### Lambdas ###
 
-data "archive_file" "create-user-zip" {
- source_file = "dist/create-user/index.js"
- output_path = "dist/create-user/create-note.zip"
+data "archive_file" "upsert-user-zip" {
+ source_file = "dist/upsert-user/index.js"
+ output_path = "dist/upsert-user/upsert-user.zip"
  type = "zip"
 }
 
-resource "aws_lambda_function" "create_user" {
-  function_name = "dimer-create-user"
+resource "aws_lambda_function" "upsert_user" {
+  function_name = "dimer-upsert-user"
   role = aws_iam_role.dimer_lambda.arn
   runtime = "nodejs20.x"
-  handler = "lambdas/create-user/index.handler"
-  filename = "dist/create-user/create-note.zip"
-  source_code_hash = filebase64sha256("dist/create-user/create-note.zip")
+  handler = "lambdas/upsert-user/index.handler"
+  filename = data.archive_file.upsert-user-zip.output_path
+  source_code_hash = data.archive_file.upsert-user-zip.output_base64sha256
 }
