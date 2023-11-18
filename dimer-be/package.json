@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Serverless backend for Dimer",
   "scripts": {
+    "format.tf": "terraform fmt",
     "build": "rm -rf dist && tsc",
     "preview": "terraform plan",
     "deploy": "terraform apply",
