@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "Serverless backend for Dimer",
   "scripts": {
-    "format.tf": "terraform fmt",
+    "format.tf": "cd terraform && terraform fmt",
     "build": "rm -rf dist && tsc",
-    "preview": "terraform plan",
-    "deploy": "terraform apply",
+    "preview": "cd terraform && terraform plan",
+    "deploy": "cd terraform && terraform apply",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Brian Suh",
