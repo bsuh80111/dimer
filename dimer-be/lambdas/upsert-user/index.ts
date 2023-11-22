@@ -21,11 +21,12 @@ export const handler: Handler<APIGatewayProxyEvent, APIGatewayProxyResultV2> = a
 
     const data = JSON.parse(event.body); // Parse data
     const userId = data.id ?? randomUUID(); // Generate new ID if none provided
+    const updateTime = new Date().toISOString();
 
     // Set update timestamp
-    let updateExpression = "SET lastUpdate = :updateTime";
+    let updateExpression = 'SET lastUpdate = :updateTime';
     let updateAttributes: Record<string, any> = {
-        ':updateTime': new Date().toISOString()
+        ':updateTime': updateTime
     };
 
     // Iterate through data keys to create update expression
@@ -38,18 +39,49 @@ export const handler: Handler<APIGatewayProxyEvent, APIGatewayProxyResultV2> = a
         }
     }
 
+    // If userName is being updated, update the search index
+    if (data['userName']) {
+        updateExpression += `, userNameIndex = :userNameIndex`;
+        updateAttributes[':userNameIndex'] = (data['userName'] as string).toLowerCase();
+    }
+
     // Initialize update parameters
     const updateItemParams: UpdateCommandInput = {
         TableName: 'DimerUsers',
         Key: { id: userId }, // Primary Key
         UpdateExpression: updateExpression,
         ExpressionAttributeValues: updateAttributes,
-        ReturnValues: "ALL_NEW" // Returns all properties of the modified/inserted item
+        ReturnValues: 'ALL_NEW' // Returns all properties of the modified/inserted item
     };
     console.log(updateItemParams);
 
     // Execute update
     const response = await docClient.send(new UpdateCommand(updateItemParams));
+
+
+    // Table metadata update
+    let metadataUpdateExpression = 'SET lastOperationTime = :operationTime';
+    let metadataUpdateAttributes: Record<string, any> = {
+        ':operationTime': updateTime
+    };
+
+    // If user was inserted, update the table's row count metadata
+    if (!data.id) {
+        metadataUpdateExpression += ', rowCount = if_not_exists(rowCount, :initial) + :add';
+        metadataUpdateAttributes[':initial'] = 0;
+        metadataUpdateAttributes[':add'] = 1;
+    }
+
+    const metadataResponse = await docClient.send(
+        new UpdateCommand({
+            TableName: 'Metadata',
+            Key: { tableName: 'DimerUsers' },
+            UpdateExpression: metadataUpdateExpression,
+            ExpressionAttributeValues: metadataUpdateAttributes,
+            ReturnValues: 'ALL_NEW'
+        })
+    );
+    console.log(metadataResponse);
 
     return {
         statusCode: 200,

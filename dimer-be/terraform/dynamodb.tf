@@ -1,5 +1,6 @@
 ### DynamoDB ###
 
+# Users
 resource "aws_dynamodb_table" "dimer_users" {
   name           = "DimerUsers"
   billing_mode   = "PROVISIONED"
@@ -9,6 +10,20 @@ resource "aws_dynamodb_table" "dimer_users" {
 
   attribute {
     name = "id"
+    type = "S"
+  }
+}
+
+# Metadata
+resource "aws_dynamodb_table" "metadata" {
+  name           = "Metadata"
+  billing_mode   = "PROVISIONED"
+  read_capacity  = 10
+  write_capacity = 10
+  hash_key       = "tableName"
+
+  attribute {
+    name = "tableName"
     type = "S"
   }
 }

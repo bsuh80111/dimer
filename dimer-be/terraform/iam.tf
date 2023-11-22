@@ -19,7 +19,10 @@ resource "aws_iam_policy" "dynamodb_lambda" {
           "dynamodb:Query",
           "dynamodb:UpdateItem"
         ],
-        Resource : "${aws_dynamodb_table.dimer_users.arn}"
+        Resource : [
+          aws_dynamodb_table.dimer_users.arn,
+          aws_dynamodb_table.metadata.arn
+        ]
       }
     ]
   })
