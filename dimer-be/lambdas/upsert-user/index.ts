@@ -16,78 +16,99 @@ export const handler: Handler<APIGatewayProxyEvent, APIGatewayProxyResultV2> = a
             body: JSON.stringify({
                 message: 'No data provided'
             })
+        };
+    }
+
+    try {
+        const data = JSON.parse(event.body); // Parse data
+        const userId = data.id ?? randomUUID(); // Generate new ID if none provided
+        const updateTime = new Date().toISOString();
+
+        // Set update timestamp
+        let updateExpression = 'SET lastUpdate = :updateTime';
+        let updateAttributes: Record<string, any> = {
+            ':updateTime': updateTime
+        };
+
+        // Iterate through data keys to create update expression
+        // Allows us to upsert data
+        // Idea from https://dev.to/dengel29/flexible-upsert-with-dynamodb-397j
+        for (let key in data) {
+            if (key !== 'id') {
+                updateExpression += `, ${key} = :${key}`;
+                updateAttributes[`:${key}`] = data[key];
+            }
+        }
+
+        // If userName is being updated, update the search index
+        if (data['userName']) {
+            updateExpression += `, userNameIndex = :userNameIndex`;
+            updateAttributes[':userNameIndex'] = (data['userName'] as string).toLowerCase();
+        }
+
+        // Initialize update parameters
+        const updateItemParams: UpdateCommandInput = {
+            TableName: 'DimerUsers',
+            Key: { id: userId }, // Primary Key
+            UpdateExpression: updateExpression,
+            ExpressionAttributeValues: updateAttributes,
+            ReturnValues: 'ALL_NEW' // Returns all properties of the modified/inserted item
+        };
+        console.log(updateItemParams);
+
+        // Execute update
+        const updateItemResponse = await docClient.send(new UpdateCommand(updateItemParams));
+
+        if (!updateItemResponse.Attributes) {
+            console.log(updateItemResponse);
+            return {
+                statusCode: 400,
+                body: JSON.stringify({
+                    message: 'Nothing updated or inserted.'
+                })
+            };
+        }
+
+        // Upsert successful -- update table metadata
+        let metadataUpdateExpression = 'SET lastOperationTime = :operationTime';
+        let metadataUpdateAttributes: Record<string, any> = {
+            ':operationTime': updateTime
+        };
+
+        // If user was inserted, update the table's row count metadata
+        if (!data.id) {
+            metadataUpdateExpression += ', rowCount = if_not_exists(rowCount, :initial) + :add';
+            metadataUpdateAttributes[':initial'] = 0;
+            metadataUpdateAttributes[':add'] = 1;
+        }
+
+        const metadataResponse = await docClient.send(
+            new UpdateCommand({
+                TableName: 'Metadata',
+                Key: { tableName: 'DimerUsers' },
+                UpdateExpression: metadataUpdateExpression,
+                ExpressionAttributeValues: metadataUpdateAttributes,
+                ReturnValues: 'ALL_NEW'
+            })
+        );
+
+        console.log(updateItemResponse, metadataResponse);
+
+        return {
+            statusCode: 200,
+            body: JSON.stringify({
+                message: data.id ? `Updated user: ${userId}` : `Inserted user: ${userId}`,
+                user: updateItemResponse.Attributes,
+                totalUserCount: metadataResponse.Attributes?.rowCount
+            })
+        };
+    } catch (e) {
+        console.log(e);
+        return {
+            statusCode: 500,
+            body: JSON.stringify({
+                message: `Unable to upsert user.`
+            })
         }
     }
-
-    const data = JSON.parse(event.body); // Parse data
-    const userId = data.id ?? randomUUID(); // Generate new ID if none provided
-    const updateTime = new Date().toISOString();
-
-    // Set update timestamp
-    let updateExpression = 'SET lastUpdate = :updateTime';
-    let updateAttributes: Record<string, any> = {
-        ':updateTime': updateTime
-    };
-
-    // Iterate through data keys to create update expression
-    // Allows us to upsert data
-    // Idea from https://dev.to/dengel29/flexible-upsert-with-dynamodb-397j
-    for (let key in data) {
-        if (key !== 'id') {
-            updateExpression += `, ${key} = :${key}`;
-            updateAttributes[`:${key}`] = data[key];
-        }
-    }
-
-    // If userName is being updated, update the search index
-    if (data['userName']) {
-        updateExpression += `, userNameIndex = :userNameIndex`;
-        updateAttributes[':userNameIndex'] = (data['userName'] as string).toLowerCase();
-    }
-
-    // Initialize update parameters
-    const updateItemParams: UpdateCommandInput = {
-        TableName: 'DimerUsers',
-        Key: { id: userId }, // Primary Key
-        UpdateExpression: updateExpression,
-        ExpressionAttributeValues: updateAttributes,
-        ReturnValues: 'ALL_NEW' // Returns all properties of the modified/inserted item
-    };
-    console.log(updateItemParams);
-
-    // Execute update
-    const response = await docClient.send(new UpdateCommand(updateItemParams));
-
-
-    // Table metadata update
-    let metadataUpdateExpression = 'SET lastOperationTime = :operationTime';
-    let metadataUpdateAttributes: Record<string, any> = {
-        ':operationTime': updateTime
-    };
-
-    // If user was inserted, update the table's row count metadata
-    if (!data.id) {
-        metadataUpdateExpression += ', rowCount = if_not_exists(rowCount, :initial) + :add';
-        metadataUpdateAttributes[':initial'] = 0;
-        metadataUpdateAttributes[':add'] = 1;
-    }
-
-    const metadataResponse = await docClient.send(
-        new UpdateCommand({
-            TableName: 'Metadata',
-            Key: { tableName: 'DimerUsers' },
-            UpdateExpression: metadataUpdateExpression,
-            ExpressionAttributeValues: metadataUpdateAttributes,
-            ReturnValues: 'ALL_NEW'
-        })
-    );
-    console.log(metadataResponse);
-
-    return {
-        statusCode: 200,
-        body: JSON.stringify({
-            message: data.id ? `Updated user: ${userId}` : `Inserted user: ${userId}`,
-            result: response.Attributes
-        })
-    };
 };

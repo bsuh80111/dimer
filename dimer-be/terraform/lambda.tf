@@ -55,3 +55,31 @@ resource "aws_lambda_permission" "get_user_api_gateway_invoke" {
   # within the API Gateway "REST API".
   source_arn = "${aws_apigatewayv2_api.dimer.execution_arn}/*/*"
 }
+
+# Delete User Lambda
+data "archive_file" "delete-user-zip" {
+  source_file = "../dist/delete-user/index.js"
+  output_path = "../dist/delete-user/upsert-user.zip"
+  type        = "zip"
+}
+
+resource "aws_lambda_function" "delete_user" {
+  function_name    = "dimer-delete-user"
+  role             = aws_iam_role.dimer_lambda.arn
+  runtime          = "nodejs20.x"
+  handler          = "lambdas/delete-user/index.handler"
+  filename         = data.archive_file.delete-user-zip.output_path
+  source_code_hash = data.archive_file.delete-user-zip.output_base64sha256
+}
+
+# Delete User Lambda - Allow invokations from API Gateway
+resource "aws_lambda_permission" "delete_user_api_gateway_invoke" {
+  statement_id  = "AllowAPIGatewayInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.delete_user.function_name
+  principal     = "apigateway.amazonaws.com"
+
+  # The /*/* portion grants access from any method on any resource
+  # within the API Gateway "REST API".
+  source_arn = "${aws_apigatewayv2_api.dimer.execution_arn}/*/*"
+}

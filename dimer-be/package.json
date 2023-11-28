@@ -5,8 +5,8 @@
   "scripts": {
     "format.tf": "cd terraform && terraform fmt",
     "build": "rm -rf dist && tsc",
-    "preview": "cd terraform && terraform plan",
-    "deploy": "cd terraform && terraform apply",
+    "preview": "npm run build && cd terraform && terraform plan",
+    "deploy": "npm run build && cd terraform && terraform apply",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Brian Suh",

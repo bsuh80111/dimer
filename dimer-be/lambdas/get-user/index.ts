@@ -12,7 +12,7 @@ export const handler: Handler<APIGatewayProxyEvent, APIGatewayProxyResultV2> = a
   const { lastEvaluatedUserKey, name } = event.queryStringParameters ?? {};
   let scanParams: ScanCommandInput = {
     TableName: 'DimerUsers',
-    Limit: 1
+    Limit: 20
   };
 
   // Apply user name filter if search string provided

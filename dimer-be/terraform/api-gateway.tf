@@ -38,6 +38,22 @@ resource "aws_apigatewayv2_integration" "get_user_lambda" {
   payload_format_version = "2.0"
 }
 
+# DELETE /user/{id}
+resource "aws_apigatewayv2_route" "delete_user" {
+  api_id    = aws_apigatewayv2_api.dimer.id
+  route_key = "DELETE /user/{id}"
+
+  target = "integrations/${aws_apigatewayv2_integration.delete_user_lambda.id}"
+}
+
+resource "aws_apigatewayv2_integration" "delete_user_lambda" {
+  api_id = aws_apigatewayv2_api.dimer.id
+
+  integration_type       = "AWS_PROXY"
+  integration_uri        = aws_lambda_function.delete_user.invoke_arn
+  payload_format_version = "2.0"
+}
+
 # Test Stage
 resource "aws_apigatewayv2_stage" "test" {
   api_id      = aws_apigatewayv2_api.dimer.id
