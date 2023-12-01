@@ -1,4 +1,5 @@
 import { Home } from "src/pages/Home/Home";
+import { Players } from "src/pages/Players/Players";
 import { Root } from "src/Root";
 import { createBrowserRouter } from "react-router-dom";
 
@@ -16,6 +17,7 @@ const router = createBrowserRouter([
       },
       {
         path: 'players',
+        element: <Players />
       }
     ]
   }

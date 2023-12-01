@@ -17,6 +17,9 @@ const queryClient = new QueryClient({
   }
 });
 
+// TODO Theme Context
+document.documentElement.setAttribute('theme', 'light');
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>

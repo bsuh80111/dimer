@@ -1,104 +1,94 @@
-import 'src/components/Navbar/Navbar.scss';
-import { AppBar, Box, Button, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemText, Toolbar, Typography } from "@mui/material";
-import MenuIcon from '@mui/icons-material/Menu';
 import { NavLink } from 'react-router-dom';
-import { useState } from 'react';
+import styles from 'src/components/Navbar/Navbar.module.scss';
+import { useRef } from 'react';
 
-interface NavItem {
+export interface NavItem {
   label: string;
   route: string;
+  icon: JSX.Element;
 }
 
-const navItems: NavItem[] = [
-  {
-    label: 'Home',
-    route: '/'
-  },
-  {
-    label: 'Organize',
-    route: '/organize'
-  },
-  {
-    label: 'All Players',
-    route: '/players'
-  }
-];
+export interface NavbarProps {
+  navItems: NavItem[];
+}
 
-const Navbar = () => {
 
-  const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
+const Navbar = ({
+  navItems
+}: NavbarProps) => {
 
-  const toggleDrawer = () => {
-    setDrawerOpen((prevState) => !prevState);
+  const mobileMenuRef = useRef<HTMLMenuElement>(null);
+
+  const toggleMenu = () => {
+    if (mobileMenuRef.current?.getAttribute('opened') === 'true') {
+      mobileMenuRef.current?.setAttribute('opened', 'false');
+    } else {
+      mobileMenuRef.current?.setAttribute('opened', 'true');
+    }
+  };
+
+  const getNavLinks = () => {
+    return (
+      <menu className={styles.desktop}>
+        {navItems.map((navItem) => (
+          <NavLink key={`${navItem.label}-nav-item`} to={navItem.route}>
+            <li>
+              {navItem.label}
+            </li>
+          </NavLink>
+        ))}
+      </menu>
+    );
+  };
+
+  const getNavLinksMenu = () => {
+    return (
+      <menu className={styles.mobile} ref={mobileMenuRef}>
+        {navItems.map((navItem) => (
+          <NavLink key={`${navItem.label}-mobile-nav-item`} to={navItem.route} onClick={toggleMenu}>
+            <li>
+              {navItem.label}
+            </li>
+          </NavLink>
+        ))}
+      </menu>
+    );
   };
 
   return (
-    <>
-      <AppBar component="nav" elevation={0}>
-        <Toolbar sx={{ height: 64}}>
-          <Box className="logo">
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              // edge="start"
-              onClick={toggleDrawer}
-              sx={{ display: { sm: 'none' } }}
-            >
-              <MenuIcon />
-            </IconButton>
-            <Typography
-              variant="h6"
-              component="div"
-            >
-              Dimer
-            </Typography>
-          </Box>
-          <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
-            {navItems.map((navItem) => (
-              <Button
-                component={NavLink}
-                key={`navbar-item-${navItem.label}`} 
-                sx={{ color: '#fff' }}
-                to={navItem.route}
-              >
-                {navItem.label}
-              </Button>
-            ))}
-          </Box>
-        </Toolbar>
-      </AppBar>
+    <nav className={styles['navbar-component']}>
+      <div className={styles.main}>
+        <NavLink to='/'>
+          <h1>Dimer</h1>
+        </NavLink>
+        {getNavLinks()}
 
-      <nav>
-        <Drawer
-          variant="temporary"
-          open={drawerOpen}
-          onClose={toggleDrawer}
-          ModalProps={{
-            keepMounted: true, // Better open performance on mobile.
-          }}
-          sx={{
-            display: { xs: 'block', sm: 'none' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 240 },
-          }}
-        >
-          <Box sx={{ textAlign: 'center' }}>
-            <Typography variant="h6" sx={{ my: 2 }}>
-              Dimer
-            </Typography>
-            <Divider />
-            <List>
-              {navItems.map((navItem) => (
-                <ListItem key={`navbar-drawer-item-${navItem.label}`} disablePadding>
-                  <ListItemButton sx={{ textAlign: 'center' }}>
-                    <ListItemText primary={navItem.label} />
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
-          </Box>
-        </Drawer>
-      </nav>
-    </>
+        <button className={styles.mobile} onClick={toggleMenu}>
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M2 6C2 5.44772 2.44772 5 3 5H21C21.5523 5 22 5.44772 22 6C22 6.55228 21.5523 7 21 7H3C2.44772 7 2 6.55228 2 6Z"
+              fill="currentColor"
+            />
+            <path
+              d="M2 12.0322C2 11.4799 2.44772 11.0322 3 11.0322H21C21.5523 11.0322 22 11.4799 22 12.0322C22 12.5845 21.5523 13.0322 21 13.0322H3C2.44772 13.0322 2 12.5845 2 12.0322Z"
+              fill="currentColor"
+            />
+            <path
+              d="M3 17.0645C2.44772 17.0645 2 17.5122 2 18.0645C2 18.6167 2.44772 19.0645 3 19.0645H21C21.5523 19.0645 22 18.6167 22 18.0645C22 17.5122 21.5523 17.0645 21 17.0645H3Z"
+              fill="currentColor"
+            />
+          </svg>
+        </button>
+      </div>
+      {getNavLinksMenu()}
+    </nav>
+
   );
 };
 

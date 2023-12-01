@@ -1,0 +1,92 @@
+@use 'src/styles/themes';
+
+nav.sidenav-component {
+  height: 100vh;
+  width: clamp(200px, 20vw, 20vw);
+  background-color: var(--primary-container);
+  color: var(--on-primary-container);
+  box-sizing: border-box;
+  padding: 12px;
+  transition: width 25ms ease;
+
+  h1 {
+    margin-left: 24px;
+    transition: opacity 25ms ease 25ms;
+    opacity: 1;
+  }
+
+  ul {
+    all: unset;
+  }
+
+  li {
+    list-style-type: none;
+    padding: 12px 24px;
+    color: var(--on-primary-container);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: padding 25ms ease, gap 25ms ease;
+  }
+
+  li:hover {
+    background-color: var(--primary);
+    color: var(--on-primary)
+  }
+
+  a.active>li {
+    font-weight: bold;
+    color: var(--on-primary);
+    background-color: var(--primary);
+  }
+
+  a {
+    text-decoration: none;
+    color: unset;
+  }
+
+  button {
+    position: absolute;
+    top: 36px;
+    left: clamp(180px, 18vw, 18vw);
+    transition: left 25ms ease;
+  }
+
+  svg {
+    min-width: 24px;
+  }
+
+  .label {
+    text-wrap: nowrap;
+    opacity: 1;
+    transition: opacity 25ms ease 25ms;
+  }
+}
+
+nav.sidenav-component[opened='false'] {
+  transition: width 25ms ease 25ms;
+  width: 72px;
+  overflow: hidden;
+
+  h1 {
+    transition: opacity 50ms ease;
+    opacity: 0;
+  }
+
+  li {
+    padding: 12px;
+    gap: 24px;
+    transition: padding 25ms ease 25ms, gap 25ms ease 25ms;
+  }
+
+  .label {
+    opacity: 0;
+    transition: opacity 50ms ease;
+  }
+
+  button {
+    left: 48px;
+    transition: left 25ms ease 25ms;
+  }
+}

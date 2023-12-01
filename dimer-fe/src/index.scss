@@ -1,13 +1,27 @@
+@use 'src/styles/themes';
+
 :root {
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+div#root {
+  display: flex;
 }
 
 body {
   margin: 0;
   width: 100vw;
   height: 100vh;
+  background-color: var(--background);
+}
+
+a.active > li {
+  font-weight: bold;
+  color: var(--on-primary) !important;
+  background-color: var(--primary);
 }
