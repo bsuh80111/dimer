@@ -9,11 +9,13 @@ export interface NavItem {
 }
 
 export interface NavbarProps {
+  title: string;
   navItems: NavItem[];
 }
 
 
 const Navbar = ({
+  title,
   navItems
 }: NavbarProps) => {
 
@@ -59,7 +61,7 @@ const Navbar = ({
     <nav className={styles['navbar-component']}>
       <div className={styles.main}>
         <NavLink to='/'>
-          <h1>Dimer</h1>
+          <h1>{title}</h1>
         </NavLink>
         {getNavLinks()}
 

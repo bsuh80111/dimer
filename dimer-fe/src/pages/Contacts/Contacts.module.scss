@@ -1,0 +1,15 @@
+header.contact-page {
+  margin-bottom: 12px;
+
+  h1 {
+    margin: 0;
+  }
+}
+
+.options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}

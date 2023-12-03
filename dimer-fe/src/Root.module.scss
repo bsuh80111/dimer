@@ -3,5 +3,7 @@
 main {
   box-sizing: border-box;
   flex-grow: 1;
-  padding: 24px;
+  padding: 32px;
+  height: 100%;
+  overflow: auto;
 }
