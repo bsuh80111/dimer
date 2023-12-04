@@ -1,6 +1,6 @@
-import { ReactNode, createContext, useEffect } from "react";
-import { ThemeProvider, useMediaQuery } from "@mui/material";
-import { darkTheme, lightTheme } from "src/styles/themes";
+import { ReactNode, createContext, useEffect } from 'react';
+import { ThemeProvider, useMediaQuery } from '@mui/material';
+import { darkTheme, lightTheme } from 'src/styles/themes';
 
 interface ThemeContextProviderProps {
   children: ReactNode;

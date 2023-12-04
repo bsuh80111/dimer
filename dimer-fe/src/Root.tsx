@@ -1,6 +1,7 @@
 import 'src/Root.module.scss';
 import { NavItem, Navbar } from 'src/components/Navbar/Navbar';
 import { useEffect, useState } from 'react';
+import { DialogProvider } from 'src/components/Dialog/DialogProvider';
 import { Outlet } from 'react-router-dom';
 import { Sidenav } from 'src/components/Sidenav/Sidenav';
 
@@ -56,7 +57,9 @@ function Root() {
     <>
       {getNavUI()}
       <main>
-        <Outlet />
+        <DialogProvider>
+          <Outlet />
+        </DialogProvider>
       </main>
     </>
   );

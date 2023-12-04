@@ -18,6 +18,7 @@ module.exports = {
     ],
     'semi': 'warn',
     'indent': ['warn', 2],
-    'sort-imports': 'warn'
+    'sort-imports': 'warn',
+    'quotes': ['warn', 'single', { 'allowTemplateLiterals': true }]
   },
 }

@@ -1,7 +1,7 @@
-import { NavItem } from "src/components/Navbar/Navbar";
+import { NavItem } from 'src/components/Navbar/Navbar';
 import { NavLink } from 'react-router-dom';
 import styles from 'src/components/Sidenav/Sidenav.module.scss';
-import { useRef } from "react";
+import { useRef } from 'react';
 
 export interface SidenavProps {
   navItems: NavItem[];
