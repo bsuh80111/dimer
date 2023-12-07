@@ -1,11 +1,15 @@
-import { Button, InputAdornment, TextField, debounce } from "@mui/material";
-import { ChangeEvent, Suspense, useState } from "react";
-import { ContactList } from "src/components/Contacts/ContactList/ContactList";
-import { ErrorBoundary } from "react-error-boundary";
-import { Search } from "@mui/icons-material";
+import { Button, InputAdornment, TextField, debounce } from '@mui/material';
+import { ChangeEvent, Suspense, useContext, useRef, useState } from 'react';
+import { ContactList, ContactListRef } from 'src/components/Contacts/ContactList/ContactList';
+import { ContactForm } from 'src/components/Contacts/ContactForm/ContactForm';
+import { DialogContext } from 'src/components/Dialog/DialogProvider';
+import { ErrorBoundary } from 'react-error-boundary';
+import { Search } from '@mui/icons-material';
 import styles from 'src/pages/Contacts/Contacts.module.scss';
 
 const Contacts = () => {
+  const contactTable = useRef<ContactListRef>(null);
+  const dialogContext = useContext(DialogContext);
   const [searchString, setSearchString] = useState<string | undefined>();
 
   /**
@@ -31,6 +35,22 @@ const Contacts = () => {
           type="button"
           color="primary"
           variant="contained"
+          onClick={() => {
+            dialogContext.openDialog({
+              dialogContent: (
+                <ContactForm
+                  onCancel={dialogContext.closeDialog}
+                  onSuccess={(result) => {
+                    dialogContext.closeDialog();
+                    contactTable.current?.appendContact(result.contact);
+                    contactTable.current?.setTotalContactCount(result.totalContactCount);
+                  }}
+                />
+              ),
+              title: 'Add Contact',
+              showDialogActions: false
+            });
+          }}
         >Add Contact</Button>
 
         <TextField
@@ -51,7 +71,7 @@ const Contacts = () => {
       {/* Contact List Table */}
       <ErrorBoundary fallback={<div>Error</div>}>
         <Suspense fallback={<div>Loading</div>}>
-          <ContactList searchString={searchString} />
+          <ContactList searchString={searchString} ref={contactTable} />
         </Suspense>
       </ErrorBoundary>
     </>

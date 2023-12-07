@@ -4,6 +4,14 @@ resource "aws_apigatewayv2_api" "dimer" {
   name          = "DimerApi"
   protocol_type = "HTTP"
   description   = "Request handler for Dimer BE"
+  cors_configuration {
+    allow_credentials = false
+    allow_headers     = ["Content-Type"]
+    allow_methods     = ["GET", "POST", "DELETE", "OPTIONS"]
+    allow_origins     = ["http://localhost:5173"]
+    expose_headers    = []
+    max_age           = 0
+  }
 }
 
 # POST /user
@@ -59,6 +67,21 @@ resource "aws_apigatewayv2_stage" "test" {
   api_id      = aws_apigatewayv2_api.dimer.id
   name        = "test"
   auto_deploy = true
+  access_log_settings {
+    destination_arn = "arn:aws:logs:us-east-1:876131004963:log-group:/aws/api-gateway/dimer"
+    format = jsonencode(
+      {
+        httpMethod     = "$context.httpMethod"
+        ip             = "$context.identity.sourceIp"
+        protocol       = "$context.protocol"
+        requestId      = "$context.requestId"
+        requestTime    = "$context.requestTime"
+        responseLength = "$context.responseLength"
+        routeKey       = "$context.routeKey"
+        status         = "$context.status"
+      }
+    )
+  }
 }
 
 # Deployment

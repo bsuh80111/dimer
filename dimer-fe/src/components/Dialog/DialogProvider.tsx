@@ -1,4 +1,4 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { PropsWithChildren, ReactNode, createContext, useState } from 'react';
 
 interface DialogContextProps {
@@ -10,6 +10,7 @@ interface DialogParams {
   title?: string;
   dialogContent: string | ReactNode;
   showDialogActions?: boolean;
+  warningDialog?: boolean;
   primaryActionText?: string;
   onPrimaryAction?: () => void;
   onCancel?: () => void;
@@ -24,7 +25,8 @@ const DialogProvider = ({ children }: PropsWithChildren) => {
   const [open, setOpen] = useState<boolean>(false);
   const [dialogParams, setDialogParams] = useState<DialogParams>({
     dialogContent: '',
-    showDialogActions: false
+    showDialogActions: false,
+    warningDialog: false
   });
 
   const openDialog = (params: DialogParams) => {
@@ -33,13 +35,26 @@ const DialogProvider = ({ children }: PropsWithChildren) => {
   };
 
   const closeDialog = () => {
-    dialogParams.onCancel?.();
+    resetDialog();
     setOpen(false);
+  };
+
+  const handleCancel = () => {
+    dialogParams.onCancel?.();
+    closeDialog();
   };
 
   const handlePrimaryAction = () => {
     dialogParams.onPrimaryAction?.();
-    setOpen(false);
+    closeDialog();
+  };
+
+  const resetDialog = () => {
+    setDialogParams({
+      dialogContent: '',
+      showDialogActions: false,
+      warningDialog: false
+    });
   };
 
   return (
@@ -49,19 +64,27 @@ const DialogProvider = ({ children }: PropsWithChildren) => {
     }}>
       <Dialog
         open={open}
+        maxWidth={'sm'}
+        fullWidth={true}
         onClose={closeDialog}
       >
         {dialogParams.title && <DialogTitle>{dialogParams.title}</DialogTitle>}
         <DialogContent>
-          {typeof dialogParams.dialogContent === 'string' && <DialogContentText>{dialogParams.dialogContent}</DialogContentText>}
-          {typeof dialogParams.dialogContent !== 'string' && dialogParams.dialogContent}
+          <Box paddingTop={'8px'}>
+            {typeof dialogParams.dialogContent === 'string' && <DialogContentText>{dialogParams.dialogContent}</DialogContentText>}
+            {typeof dialogParams.dialogContent !== 'string' && dialogParams.dialogContent}
+          </Box>
         </DialogContent>
 
 
         {dialogParams.showDialogActions &&
           <DialogActions>
-            <Button onClick={closeDialog}>Cancel</Button>
-            <Button onClick={handlePrimaryAction}>{dialogParams.primaryActionText}</Button>
+            <Button onClick={handleCancel}>Cancel</Button>
+            <Button
+              variant='contained'
+              onClick={handlePrimaryAction}
+              color={dialogParams.warningDialog ? 'error' : 'primary'}
+            >{dialogParams.primaryActionText}</Button>
           </DialogActions>
         }
       </Dialog>
